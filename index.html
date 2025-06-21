@@ -1,22 +1,35 @@
 <!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Intuition Glasses Maker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Russo+One&display=swap" rel="stylesheet">
+  <title>INTUITION RITE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Unica+One&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Orbitron', sans-serif;
+      font-family: 'Unica One', sans-serif;
       margin: 0;
       padding: 0;
-      background: #111;
-      color: white;
-    }h1 {
-  font-family: 'Russo One', sans-serif;
-  font-size: 36px;
-  margin: 30px 0 20px;
+      background: linear-gradient(160deg, #0a0a0a, #1a1a1a);
+      color: #ccc;
+      overflow-x: hidden;
+      animation: flickerBG 10s infinite alternate;
+    }@keyframes flickerBG {
+  0% { background-color: #111; }
+  100% { background-color: #1a1a1a; }
+}
+
+h1 {
+  font-size: 48px;
+  margin: 40px 0 20px;
   text-align: center;
-  color: #aaa;
-  text-shadow: 0 0 8px #444;
+  color: #ddd;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px #444;
+  animation: pulseText 4s infinite;
+}
+
+@keyframes pulseText {
+  0% { text-shadow: 0 0 10px #444; }
+  100% { text-shadow: 0 0 20px #666; }
 }
 
 .controls {
@@ -24,79 +37,83 @@
   justify-content: center;
   align-items: center;
   gap: 16px;
-  margin-bottom: 25px;
+  margin-bottom: 30px;
   flex-wrap: wrap;
 }
 
-.controls input[type="file"] {
-  background: #2a2a2a;
+.controls input[type="file"], .controls button {
+  background: #1f1f1f;
   color: #ccc;
-  padding: 10px 16px;
-  border: 1px solid #444;
-  border-radius: 10px;
+  padding: 12px 18px;
+  border: 1px solid #333;
+  border-radius: 12px;
   cursor: pointer;
   font-weight: bold;
+  text-transform: uppercase;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
 }
 
-.controls button {
-  background: #444;
-  border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: bold;
-  color: #eee;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.controls button:hover {
-  background: #555;
+.controls input[type="file"]:hover, .controls button:hover {
+  background: #2a2a2a;
+  box-shadow: 0 0 8px #666;
 }
 
 #canvas-container {
   display: flex;
   justify-content: center;
-  margin: 30px auto;
+  margin: 40px auto;
   max-width: 95%;
+  padding: 20px;
+  background: #111;
+  border: 2px solid #222;
+  border-radius: 12px;
+  animation: borderPulse 6s infinite alternate;
+}
+
+@keyframes borderPulse {
+  0% { border-color: #222; }
+  100% { border-color: #333; }
 }
 
 canvas {
-  border: 2px solid #333;
-  border-radius: 12px;
-  background-color: #1a1a1a;
+  background-color: #000;
+  border-radius: 10px;
 }
 
 footer {
   text-align: center;
-  padding: 30px 10px;
+  padding: 40px 20px;
   font-size: 14px;
-  color: #888;
-  background-color: #000;
-  border-top: 1px solid #111;
+  color: #555;
+  background-color: #0a0a0a;
+  border-top: 2px solid #1a1a1a;
   margin-top: 50px;
 }
 
 .marsh-button {
   display: inline-block;
   margin-top: 15px;
-  background-color: #1c1c1c;
+  background-color: #151515;
   color: #aaa;
   font-weight: bold;
   padding: 12px 24px;
   border-radius: 30px;
   text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid #333;
 }
 
   </style>
 </head>
 <body>
-  <h1>Intuition Glasses Maker</h1>  <div class="controls">
+  <h1>THE INTUITION RITE</h1>  <div class="controls">
     <input type="file" id="uploadUserImage" accept="image/*">
-    <button onclick="downloadImage()">Download Final Image</button>
+    <button onclick="downloadImage()">Download Ritual Image</button>
   </div>  <div id="canvas-container"></div>  <footer>
-    Made by @0xMarshallo | Dark mode only | Powered by Konva.js
+    Made by @0xMarshallo | A Cult of Vision
     <br>
-    <a href="https://x.com/0xMarshallo" target="_blank" class="marsh-button">Crafted by @0xMarshallo</a>
+    <a href="https://x.com/0xMarshallo" target="_blank" class="marsh-button">Enter the Temple</a>
   </footer>  <script src="https://unpkg.com/konva@9/konva.min.js"></script>  <script>
     const stage = new Konva.Stage({
       container: 'canvas-container',
