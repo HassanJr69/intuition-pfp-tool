@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>INTUITION RITE</title>
@@ -13,88 +12,89 @@
       color: #ccc;
       overflow-x: hidden;
       animation: flickerBG 10s infinite alternate;
-    }
-    @keyframes flickerBG {
-      0% { background-color: #111; }
-      100% { background-color: #1a1a1a; }
-    }
-    h1 {
-      font-size: 48px;
-      margin: 40px 0 20px;
-      text-align: center;
-      color: #ddd;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px #444;
-      animation: pulseText 4s infinite;
-    }
-    @keyframes pulseText {
-      0% { text-shadow: 0 0 10px #444; }
-      100% { text-shadow: 0 0 20px #666; }
-    }
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-    .controls input[type="file"], .controls button {
-      background: #1f1f1f;
-      color: #ccc;
-      padding: 12px 18px;
-      border: 1px solid #333;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      text-transform: uppercase;
-      transition: background 0.3s ease, box-shadow 0.3s ease;
-    }
-    .controls input[type="file"]:hover, .controls button:hover {
-      background: #2a2a2a;
-      box-shadow: 0 0 8px #666;
-    }
-    #canvas-container {
-      display: flex;
-      justify-content: center;
-      margin: 40px auto;
-      max-width: 95%;
-      padding: 20px;
-      background: #111;
-      border: 2px solid #222;
-      border-radius: 12px;
-      animation: borderPulse 6s infinite alternate;
-    }
-    @keyframes borderPulse {
-      0% { border-color: #222; }
-      100% { border-color: #333; }
-    }
-    canvas {
-      background-color: #000;
-      border-radius: 10px;
-    }
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      font-size: 14px;
-      color: #555;
-      background-color: #0a0a0a;
-      border-top: 2px solid #1a1a1a;
-      margin-top: 50px;
-    }
-    .marsh-button {
-      display: inline-block;
-      margin-top: 15px;
-      background-color: #151515;
-      color: #aaa;
-      font-weight: bold;
-      padding: 12px 24px;
-      border-radius: 30px;
-      text-decoration: none;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      border: 1px solid #333;
-    }
+    }@keyframes flickerBG {
+  0% { background-color: #111; }
+  100% { background-color: #1a1a1a; }
+}
+
+h1 {
+  font-size: 48px;
+  margin: 40px 0 20px;
+  text-align: center;
+  color: #ddd;
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px #444;
+  animation: pulseText 4s infinite;
+}
+
+@keyframes pulseText {
+  0% { text-shadow: 0 0 10px #444; }
+  100% { text-shadow: 0 0 20px #666; }
+}
+
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.controls input[type="file"], .controls button {
+  background: #1f1f1f;
+  color: #ccc;
+  padding: 12px 18px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.controls input[type="file"]:hover, .controls button:hover {
+  background: #2a2a2a;
+  box-shadow: 0 0 8px #666;
+}
+
+#canvas-container {
+  display: flex;
+  justify-content: center;
+  margin: 40px auto;
+  max-width: 95%;
+  padding: 20px;
+}
+
+canvas {
+  background-color: transparent;
+  border-radius: 10px;
+}
+
+footer {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 14px;
+  color: #555;
+  background-color: #0a0a0a;
+  border-top: 2px solid #1a1a1a;
+  margin-top: 50px;
+}
+
+.marsh-button {
+  display: inline-block;
+  margin-top: 15px;
+  background-color: #151515;
+  color: #aaa;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 30px;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border: 1px solid #333;
+}
+
   </style>
 </head>
 <body>
@@ -108,9 +108,7 @@
     Made by @0xMarshallo | A Cult of Vision
     <br>
     <a href="https://x.com/0xMarshallo" target="_blank" class="marsh-button">Enter the Temple</a>
-  </footer>
-  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
-  <script>
+  </footer>  <script src="https://unpkg.com/konva@9/konva.min.js"></script>  <script>
     const stage = new Konva.Stage({
       container: 'canvas-container',
       width: 800,
@@ -123,22 +121,20 @@
     let userImageNode = null;
     let glassesImageNode = null;
 
-    window.onload = function () {
-      const sunglassesImg = new Image();
-      sunglassesImg.src = 'sunglasses.png';
-      sunglassesImg.onload = function () {
-        glassesImageNode = new Konva.Image({
-          image: sunglassesImg,
-          x: 300,
-          y: 200,
-          width: 200,
-          height: 100,
-          draggable: true,
-          listening: false
-        });
-        layer.add(glassesImageNode);
-        layer.draw();
-      };
+    // Load sunglasses
+    const sunglassesImg = new Image();
+    sunglassesImg.src = 'sunglasses.png';
+    sunglassesImg.onload = function () {
+      glassesImageNode = new Konva.Image({
+        image: sunglassesImg,
+        x: 300,
+        y: 200,
+        width: 200,
+        height: 100,
+        draggable: true
+      });
+      layer.add(glassesImageNode);
+      layer.draw();
     };
 
     document.getElementById('uploadUserImage').addEventListener('change', function (e) {
@@ -157,7 +153,7 @@
             y: 100,
             width: 300,
             height: 300,
-            draggable: false
+            draggable: true
           });
           layer.add(userImageNode);
           userImageNode.moveToBottom();
@@ -169,14 +165,26 @@
     });
 
     function downloadImage() {
-      const originalBG = stage.toDataURL({ pixelRatio: 2 });
-      const link = document.createElement('a');
-      link.download = 'intuition-glasses-edit.png';
-      link.href = originalBG;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const oldBackground = stage.container().style.backgroundColor;
+      stage.container().style.backgroundColor = '#000';
+
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = stage.width();
+      tempCanvas.height = stage.height();
+      const context = tempCanvas.getContext('2d');
+
+      const image = new Image();
+      image.onload = () => {
+        context.drawImage(image, 0, 0);
+        const dataURL = tempCanvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.download = 'intuition-glasses-clean.png';
+        link.href = dataURL;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+      image.src = stage.toDataURL({ pixelRatio: 2 });
     }
-  </script>
-</body>
+  </script></body>
 </html>
