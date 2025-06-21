@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Intuition Glasses Maker</title>
@@ -9,127 +8,96 @@
       font-family: 'Orbitron', sans-serif;
       margin: 0;
       padding: 0;
-      background: linear-gradient(145deg, #0a0a0a, #111);
-      background-image: url('https://www.transparenttextures.com/patterns/asfalt-light.png');
+      background: #111;
       color: white;
-    }
+    }h1 {
+  font-family: 'Russo One', sans-serif;
+  font-size: 36px;
+  margin: 30px 0 20px;
+  text-align: center;
+  color: #aaa;
+  text-shadow: 0 0 8px #444;
+}
 
-    h1 {
-      font-family: 'Russo One', sans-serif;
-      font-size: 36px;
-      margin: 30px 0 20px;
-      text-align: center;
-      color: #00ffc3;
-      text-shadow: 0 0 12px #00ffc3cc;
-    }
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
+}
 
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 25px;
-      flex-wrap: wrap;
-    }
+.controls input[type="file"] {
+  background: #2a2a2a;
+  color: #ccc;
+  padding: 10px 16px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
 
-    .controls input[type="file"] {
-      background: #1c1c1c;
-      color: #ccc;
-      padding: 10px 16px;
-      border: 1px solid #333;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: bold;
-      box-shadow: 0 0 10px #000;
-      transition: all 0.3s ease;
-    }
+.controls button {
+  background: #444;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: bold;
+  color: #eee;
+  font-size: 16px;
+  cursor: pointer;
+}
 
-    .controls input[type="file"]:hover {
-      background: #2a2a2a;
-    }
+.controls button:hover {
+  background: #555;
+}
 
-    .controls button {
-      background: #00ffc3;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 10px;
-      font-weight: bold;
-      color: #000;
-      font-size: 16px;
-      box-shadow: 0 0 20px #00ffc3a5;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+#canvas-container {
+  display: flex;
+  justify-content: center;
+  margin: 30px auto;
+  max-width: 95%;
+}
 
-    .controls button:hover {
-      background: #00d3a5;
-    }
+canvas {
+  border: 2px solid #333;
+  border-radius: 12px;
+  background-color: #1a1a1a;
+}
 
-    #canvas-container {
-      display: flex;
-      justify-content: center;
-      margin: 30px auto;
-      max-width: 95%;
-    }
+footer {
+  text-align: center;
+  padding: 30px 10px;
+  font-size: 14px;
+  color: #888;
+  background-color: #000;
+  border-top: 1px solid #111;
+  margin-top: 50px;
+}
 
-    canvas {
-      border: 3px solid #222;
-      border-radius: 12px;
-      box-shadow: 0 0 30px #00ffc380;
-      background-color: #0f0f0f;
-    }
+.marsh-button {
+  display: inline-block;
+  margin-top: 15px;
+  background-color: #1c1c1c;
+  color: #aaa;
+  font-weight: bold;
+  padding: 12px 24px;
+  border-radius: 30px;
+  text-decoration: none;
+}
 
-    footer {
-      text-align: center;
-      padding: 30px 10px;
-      font-size: 14px;
-      color: #ccc;
-      background-color: #000;
-      border-top: 1px solid #111;
-      margin-top: 50px;
-      position: relative;
-    }
-
-    .marsh-button {
-      display: inline-block;
-      margin-top: 15px;
-      background-color: #0d0d23;
-      color: #00ffc3;
-      font-weight: bold;
-      padding: 12px 24px;
-      border-radius: 30px;
-      text-decoration: none;
-      font-family: 'Orbitron', sans-serif;
-      box-shadow: 0 0 12px #00ffc380;
-      transition: all 0.3s ease;
-    }
-
-    .marsh-button:hover {
-      background-color: #111640;
-      color: #ffffff;
-      box-shadow: 0 0 20px #00ffc3;
-    }
   </style>
 </head>
 <body>
-  <h1>🕶 Intuition Glasses Maker</h1>
-
-  <div class="controls">
+  <h1>Intuition Glasses Maker</h1>  <div class="controls">
     <input type="file" id="uploadUserImage" accept="image/*">
-    <button onclick="downloadImage()">📥 Download Final Image</button>
-  </div>
-
-  <div id="canvas-container"></div>
-
-  <footer>
+    <button onclick="downloadImage()">Download Final Image</button>
+  </div>  <div id="canvas-container"></div>  <footer>
     Made by @0xMarshallo | Dark mode only | Powered by Konva.js
     <br>
     <a href="https://x.com/0xMarshallo" target="_blank" class="marsh-button">Crafted by @0xMarshallo</a>
-  </footer>
-
-  <!-- Konva Library -->
-  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
-  <script>
+  </footer>  <script src="https://unpkg.com/konva@9/konva.min.js"></script>  <script>
     const stage = new Konva.Stage({
       container: 'canvas-container',
       width: 800,
@@ -142,10 +110,9 @@
     let userImageNode = null;
     let glassesImageNode = null;
 
-    // Load glasses.png on page load
     window.onload = function () {
       const sunglassesImg = new Image();
-      sunglassesImg.src = 'sunglasses.png'; // Transparent PNG image
+      sunglassesImg.src = 'sunglasses.png';
       sunglassesImg.onload = function () {
         glassesImageNode = new Konva.Image({
           image: sunglassesImg,
@@ -161,7 +128,6 @@
       };
     };
 
-    // Upload user image
     document.getElementById('uploadUserImage').addEventListener('change', function (e) {
       const file = e.target.files[0];
       const reader = new FileReader();
@@ -182,7 +148,7 @@
           });
           layer.add(userImageNode);
           addTransformer(userImageNode);
-          layer.moveToBottom();
+          userImageNode.moveToBottom();
           layer.draw();
         };
       };
@@ -205,12 +171,7 @@
 
       layer.add(tr);
 
-      node.on('click', function () {
-        tr.nodes([node]);
-        layer.draw();
-      });
-
-      node.on('dragstart', function () {
+      node.on('click dragstart', function () {
         tr.nodes([node]);
         layer.draw();
       });
@@ -225,6 +186,5 @@
       link.click();
       document.body.removeChild(link);
     }
-  </script>
-</body>
+  </script></body>
 </html>
