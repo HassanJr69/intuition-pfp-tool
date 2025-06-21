@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>INTUITION RITE</title>
@@ -12,107 +13,107 @@
       color: #ccc;
       overflow-x: hidden;
       animation: flickerBG 10s infinite alternate;
-    }@keyframes flickerBG {
-  0% { background-color: #111; }
-  100% { background-color: #1a1a1a; }
-}
-
-h1 {
-  font-size: 48px;
-  margin: 40px 0 20px;
-  text-align: center;
-  color: #ddd;
-  letter-spacing: 2px;
-  text-shadow: 0 0 10px #444;
-  animation: pulseText 4s infinite;
-}
-
-@keyframes pulseText {
-  0% { text-shadow: 0 0 10px #444; }
-  100% { text-shadow: 0 0 20px #666; }
-}
-
-.controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 30px;
-  flex-wrap: wrap;
-}
-
-.controls input[type="file"], .controls button {
-  background: #1f1f1f;
-  color: #ccc;
-  padding: 12px 18px;
-  border: 1px solid #333;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: bold;
-  text-transform: uppercase;
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-
-.controls input[type="file"]:hover, .controls button:hover {
-  background: #2a2a2a;
-  box-shadow: 0 0 8px #666;
-}
-
-#canvas-container {
-  display: flex;
-  justify-content: center;
-  margin: 40px auto;
-  max-width: 95%;
-  padding: 20px;
-}
-
-canvas {
-  background-color: transparent;
-  border-radius: 10px;
-}
-
-footer {
-  text-align: center;
-  padding: 40px 20px;
-  font-size: 14px;
-  color: #555;
-  background-color: #0a0a0a;
-  border-top: 2px solid #1a1a1a;
-  margin-top: 50px;
-}
-
-.marsh-button {
-  display: inline-block;
-  margin-top: 15px;
-  background-color: #151515;
-  color: #aaa;
-  font-weight: bold;
-  padding: 12px 24px;
-  border-radius: 30px;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  border: 1px solid #333;
-}
-
+    }
+    @keyframes flickerBG {
+      0% { background-color: #111; }
+      100% { background-color: #1a1a1a; }
+    }
+    h1 {
+      font-size: 48px;
+      margin: 40px 0 20px;
+      text-align: center;
+      color: #ddd;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px #444;
+      animation: pulseText 4s infinite;
+    }
+    @keyframes pulseText {
+      0% { text-shadow: 0 0 10px #444; }
+      100% { text-shadow: 0 0 20px #666; }
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+    .controls input[type="file"], .controls button {
+      background: #1f1f1f;
+      color: #ccc;
+      padding: 12px 18px;
+      border: 1px solid #333;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: bold;
+      text-transform: uppercase;
+      transition: background 0.3s ease, box-shadow 0.3s ease;
+    }
+    .controls input[type="file"]:hover, .controls button:hover {
+      background: #2a2a2a;
+      box-shadow: 0 0 8px #666;
+    }
+    #canvas-container {
+      display: flex;
+      justify-content: center;
+      margin: 40px auto;
+      max-width: 95%;
+      padding: 20px;
+      background-color: #000; /* Solid background for canvas container */
+    }
+    canvas {
+      background-color: #000; /* Solid canvas background */
+      border-radius: 10px;
+    }
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      font-size: 14px;
+      color: #555;
+      background-color: #0a0a0a;
+      border-top: 2px solid #1a1a1a;
+      margin-top: 50px;
+    }
+    .marsh-button {
+      display: inline-block;
+      margin-top: 15px;
+      background-color: #151515;
+      color: #aaa;
+      font-weight: bold;
+      padding: 12px 24px;
+      border-radius: 30px;
+      text-decoration: none;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border: 1px solid #333;
+    }
   </style>
 </head>
 <body>
   <h1>THE INTUITION RITE</h1>
   <div class="controls">
     <input type="file" id="uploadUserImage" accept="image/*">
-    <button onclick="downloadImage()">Download Ritual Image</button>
+    <button id="downloadButton">Download Ritual Image</button>
   </div>
   <div id="canvas-container"></div>
   <footer>
     Made by @0xMarshallo | A Cult of Vision
     <br>
     <a href="https://x.com/0xMarshallo" target="_blank" class="marsh-button">Enter the Temple</a>
-  </footer>  <script src="https://unpkg.com/konva@9/konva.min.js"></script>  <script>
+  </footer>
+  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+  <script>
+    // Check if Konva loaded
+    if (typeof Konva === 'undefined') {
+      console.error('Konva.js failed to load.');
+      alert('Failed to load canvas library. Please check your internet connection.');
+    }
+
     const stage = new Konva.Stage({
       container: 'canvas-container',
       width: 800,
-      height: 600
+      height: 600,
     });
 
     const layer = new Konva.Layer();
@@ -131,60 +132,111 @@ footer {
         y: 200,
         width: 200,
         height: 100,
-        draggable: true
+        draggable: true,
       });
       layer.add(glassesImageNode);
-      layer.draw();
+      layer.batchDraw();
+    };
+    sunglassesImg.onerror = function () {
+      console.error('Failed to load sunglasses.png.');
+      alert('Sunglasses image failed to load. Please check the file path.');
     };
 
+    // Handle user image upload
     document.getElementById('uploadUserImage').addEventListener('change', function (e) {
       const file = e.target.files[0];
-      const reader = new FileReader();
+      if (!file) {
+        console.error('No file selected.');
+        return;
+      }
 
+      const reader = new FileReader();
       reader.onload = function () {
         const img = new Image();
         img.src = reader.result;
 
         img.onload = function () {
+          // Resize image to fit within 300x300
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 300;
+
+          if (width > height) {
+            if (width > maxSize) {
+              height *= maxSize / width;
+              width = maxSize;
+            }
+          } else {
+            if (height > maxSize) {
+              width *= maxSize / height;
+              height = maxSize;
+            }
+          }
+
           if (userImageNode) userImageNode.destroy();
           userImageNode = new Konva.Image({
             image: img,
             x: 100,
             y: 100,
-            width: 300,
-            height: 300,
-            draggable: true
+            width: width,
+            height: height,
+            draggable: true,
           });
           layer.add(userImageNode);
           userImageNode.moveToBottom();
-          layer.draw();
+          if (glassesImageNode) glassesImageNode.moveToTop();
+          layer.batchDraw();
         };
+
+        img.onerror = function () {
+          console.error('Failed to load uploaded image.');
+          alert('Invalid or corrupted image file.');
+        };
+      };
+
+      reader.onerror = function () {
+        console.error('Failed to read file.');
+        alert('Error reading the file.');
       };
 
       reader.readAsDataURL(file);
     });
 
+    // Download image
     function downloadImage() {
-      const oldBackground = stage.container().style.backgroundColor;
-      stage.container().style.backgroundColor = '#000';
+      // Add temporary white background
+      const bgRect = new Konva.Rect({
+        x: 0,
+        y: 0,
+        width: stage.width(),
+        height: stage.height(),
+        fill: '#ffffff',
+      });
+      layer.add(bgRect);
+      bgRect.moveToBottom();
+      layer.batchDraw();
 
-      const tempCanvas = document.createElement('canvas');
-      tempCanvas.width = stage.width();
-      tempCanvas.height = stage.height();
-      const context = tempCanvas.getContext('2d');
+      // Export stage
+      const dataURL = stage.toDataURL({
+        pixelRatio: 2,
+        mimeType: 'image/png',
+      });
 
-      const image = new Image();
-      image.onload = () => {
-        context.drawImage(image, 0, 0);
-        const dataURL = tempCanvas.toDataURL('image/png');
-        const link = document.createElement('a');
-        link.download = 'intuition-glasses-clean.png';
-        link.href = dataURL;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      };
-      image.src = stage.toDataURL({ pixelRatio: 2 });
+      // Remove temporary background
+      bgRect.destroy();
+      layer.batchDraw();
+
+      // Download
+      const link = document.createElement('a');
+      link.download = 'intuition-glasses-clean.png';
+      link.href = dataURL;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
-  </script></body>
+
+    // Attach download button listener
+    document.getElementById('downloadButton').addEventListener('click', downloadImage);
+  </script>
+</body>
 </html>
