@@ -3,154 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Editor with Glasses</title>
+    <title>Intuition PFP Editor | @0xIntuition</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
         body {
+            font-family: 'Orbitron', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+            color: #00ffcc;
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        #canvas-container {
-            border: 1px solid #ccc;
-            margin-top: 10px;
+        h2 {
+            font-size: 2.5em;
+            text-shadow: 0 0 10px #00ffcc, 0 0 20px #ff00ff;
+            animation: glow 2s infinite alternate;
         }
         #controls {
-            margin: 10px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 255, 204, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            animation: fadeIn 1s ease-in;
+        }
+        #canvas-container {
+            position: relative;
+            border: 2px solid #ff00ff;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #ff00ff;
+            margin: 20px 0;
+            background: #0d0d0d;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        #canvas-container:hover {
+            transform: scale(1.02);
+        }
+        #drop-zone {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            background: rgba(255, 0, 255, 0.3);
+            color: #00ffcc;
+            font-size: 24px;
+            text-align: center;
+            line-height: 500px;
+            z-index: 10;
+            text-shadow: 0 0 10px #ff00ff;
+        }
+        button, input, select {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #ff00ff;
+            color: #fff;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px #ff00ff;
+        }
+        button:hover, input:hover, select:hover {
+            background: #00ffcc;
+            color: #000;
+            transform: scale(1.1);
+            box-shadow: 0 0 15px #00ffcc;
+        }
+        #wallet-status {
+            font-size: 16px;
+            text-shadow: 0 0 5px #00ffcc;
+        }
+        .premium {
+            color: #ffd700;
+            font-weight: bold;
+            text-shadow: 0 0 5px #ffd700;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px #00ffcc, 0 0 20px #ff00ff; }
+            to { text-shadow: 0 0 20px #00ffcc, 0 0 30px #ff00ff; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @media (max-width: 600px) {
+            #controls { flex-direction: column; }
+            #canvas { width: 100% !important; height: auto !important; }
+            #drop-zone { line-height: 300px; font-size: 18px; }
         }
     </style>
 </head>
 <body>
+    <h2>Intuition PFP Editor</h2>
     <div id="controls">
-        <input type="file" id="backgroundInput" accept="image/*" />
-        <input type="file" id="glassesInput" accept="image/*" />
-        <button onclick="downloadImage()">Download Image</button>
+        <button id="connectWallet">Connect Wallet</button>
+        <span id="wallet-status">Wallet: Not Connected</span>
+        <input type="file" id="backgroundInput" accept="image/*" title="Upload Your PFP" />
+        <select id="glasses-presets" title="Select Glasses">
+            <option value="">Default Glasses</option>
+            <option value="premium1" class="premium">Premium Neon (Token-Gated)</option>
+        </select>
+        <button onclick="downloadImage()">Download PFP</button>
+        <button onclick="saveToIPFS()">Save to IPFS</button>
+        <button onclick="mintNFT()">Mint as NFT</button>
     </div>
     <div id="canvas-container">
-        <canvas id="canvas" width="500" height="500"></canvas>
+        <div id="drop-zone">Drop Your PFP Here</div>
+        <canvas id="canvas"></canvas>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="https://unpkg.com/web3modal@1.9.12/dist/index.js"></script>
+    <script src="https://unpkg.com/ipfs-http-client@59.0.0/dist/index.min.js"></script>
     <script>
         // Initialize Fabric.js canvas
         const canvas = new fabric.Canvas('canvas', {
-            backgroundColor: '#fff',
-            selection: true
+            backgroundColor: 'transparent',
+            selection: false,
+            width: 500,
+            height: 500
         });
 
         let backgroundImg, glassesImg;
+        let provider, signer, walletAddress;
+        let hasPremiumAccess = false;
 
-        // Handle background image upload
+        // Web3Modal setup
+        const web3Modal = new Web3Modal({
+            network: 'sepolia',
+            providerOptions: {
+                metamask: {
+                    display: { name: 'MetaMask', description: 'Connect with MetaMask' },
+                    package: true
+                }
+            }
+        });
+
+        // IPFS client setup (replace with your Infura/Pinata keys)
+        const ipfs = window.IpfsHttpClient({
+            host: 'ipfs.infura.io',
+            port: 5001,
+            protocol: 'https',
+            headers: {
+                authorization: 'Bearer YOUR_INFURA_IPFS_API_KEY' // Replace with your key
+            }
+        });
+
+        // NFT contract placeholder (deploy your own ERC721 contract)
+        const nftContractAddress = 'YOUR_CONTRACT_ADDRESS'; // Replace with your deployed contract
+        const nftContractABI = [
+            {
+                "inputs": [
+                    { "name": "to", "type": "address" },
+                    { "name": "tokenURI", "type": "string" }
+                ],
+                "name": "mint",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            }
+        ];
+
+        // Connect wallet
+        document.getElementById('connectWallet').addEventListener('click', async () => {
+            try {
+                const instance = await web3Modal.connect();
+                provider = new ethers.providers.Web3Provider(instance);
+                signer = provider.getSigner();
+                walletAddress = await signer.getAddress();
+                document.getElementById('wallet-status').textContent = `Wallet: ${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+                checkTokenGating();
+            } catch (error) {
+                alert('Wallet connection failed: ' + error.message);
+            }
+        });
+
+        // Simulate token-gating
+        function checkTokenGating() {
+            // Placeholder: Assume wallet has tokens for premium access (replace with real check)
+            hasPremiumAccess = true; // Simulate for now
+            if (!hasPremiumAccess) {
+                document.querySelectorAll('.premium').forEach(opt => opt.disabled = true);
+            }
+        }
+
+        // Handle image upload
+        function handleImageUpload(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                fabric.Image.fromURL(event.target.result, function (img) {
+                    if (backgroundImg) canvas.remove(backgroundImg);
+                    const scale = Math.min(canvas.getWidth() / img.width, canvas.getHeight() / img.height);
+                    img.scale(scale);
+                    img.set({
+                        left: (canvas.getWidth() - img.width * scale) / 2,
+                        top: (canvas.getHeight() - img.height * scale) / 2,
+                        selectable: false,
+                        customType: 'background'
+                    });
+                    backgroundImg = img;
+                    canvas.add(img);
+                    canvas.sendToBack(img);
+                    addGlasses();
+                    canvas.renderAll();
+                }, { crossOrigin: 'anonymous' });
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Add glasses
+        function addGlasses(glassesURL = 'glasses.png') {
+            fabric.Image.fromURL(glassesURL, function (img) {
+                if (glassesImg) canvas.remove(glassesImg);
+                const scale = Math.min(canvas.getWidth() / 2 / img.width, canvas.getHeight() / 2 / img.height);
+                img.scale(scale);
+                img.set({
+                    left: (canvas.getWidth() - img.width * scale) / 2,
+                    top: (canvas.getHeight() - img.height * scale) / 2,
+                    selectable: true,
+                    hasControls: true,
+                    hasBorders: true,
+                    centeredScaling: true,
+                    centeredRotation: true,
+                    customType: 'glasses'
+                });
+                glassesImg = img;
+                canvas.add(img);
+                canvas.bringToFront(img);
+                canvas.renderAll();
+            }, { crossOrigin: 'anonymous' });
+        }
+
+        // Image input
         document.getElementById('backgroundInput').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    fabric.Image.fromURL(event.target.result, function (img) {
-                        // Remove existing background if any
-                        if (backgroundImg) {
-                            canvas.remove(backgroundImg);
-                        }
-                        // Scale image to fit canvas
-                        img.scaleToWidth(canvas.getWidth());
-                        img.scaleToHeight(canvas.getHeight());
-                        img.set({
-                            left: 0,
-                            top: 0,
-                            selectable: true, // Allow selection for resizing
-                            hasControls: false, // No visible controls
-                            hasBorders: false // No visible borders
-                        });
-                        backgroundImg = img;
-                        canvas.add(img);
-                        canvas.sendToBack(img); // Ensure background stays behind glasses
-                        canvas.renderAll();
-                    });
-                };
-                reader.readAsDataURL(file);
+            handleImageUpload(e.target.files[0]);
+        });
+
+        // Drag-and-drop
+        const dropZone = document.getElementById('drop-zone');
+        const canvasContainer = document.getElementById('canvas-container');
+        canvasContainer.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.display = 'block';
+        });
+        canvasContainer.addEventListener('dragleave', () => {
+            dropZone.style.display = 'none';
+        });
+        canvasContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.display = 'none';
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                handleImageUpload(file);
             }
         });
 
-        // Handle glasses image upload
-        document.getElementById('glassesInput').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    fabric.Image.fromURL(event.target.result, function (img) {
-                        // Remove existing glasses if any
-                        if (glassesImg) {
-                            canvas.remove(glassesImg);
-                        }
-                        // Scale glasses to a reasonable size
-                        img.scaleToWidth(canvas.getWidth() / 4);
-                        img.set({
-                            left: canvas.getWidth() / 2,
-                            top: canvas.getHeight() / 2,
-                            selectable: true, // Allow selection
-                            hasControls: true, // Show resize/rotate handles
-                            hasBorders: true, // Show borders
-                            centeredScaling: true,
-                            centeredRotation: true
-                        });
-                        glassesImg = img;
-                        canvas.add(img);
-                        canvas.bringToFront(img); // Ensure glasses are on top
-                        canvas.renderAll();
-                    });
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Download image with cropped background
-        function downloadImage() {
-            if (!backgroundImg && !glassesImg) {
-                alert('Please upload both a background image and glasses.');
+        // Save to IPFS
+        async function saveToIPFS() {
+            if (!backgroundImg || !glassesImg) {
+                alert('Upload a PFP and add glasses first, fam!');
                 return;
             }
+            try {
+                const dataURL = getCroppedImage();
+                const blob = await (await fetch(dataURL)).blob();
+                const result = await ipfs.add(blob);
+                const ipfsURL = `https://ipfs.infura.io/ipfs/${result.path}`;
+                alert(`PFP saved to IPFS: ${ipfsURL}`);
+                return ipfsURL;
+            } catch (error) {
+                alert('IPFS save failed: ' + error.message);
+            }
+        }
 
-            // Calculate bounding box of all objects
-            const objects = canvas.getObjects();
-            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        // Mint NFT
+        async function mintNFT() {
+            if (!walletAddress) {
+                alert('Connect your wallet first, Intuition fam!');
+                return;
+            }
+            if (!backgroundImg || !glassesImg) {
+                alert('Upload a PFP and add glasses first!');
+                return;
+            }
+            try {
+                const ipfsURL = await saveToIPFS();
+                if (!ipfsURL) return;
+                const metadata = {
+                    name: 'Intuition PFP',
+                    description: 'A custom PFP forged in the Intuition cult @0xIntuition',
+                    image: ipfsURL,
+                    attributes: [{ trait_type: 'Creator', value: walletAddress }]
+                };
+                const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+                const metadataResult = await ipfs.add(metadataBlob);
+                const metadataURI = `https://ipfs.infura.io/ipfs/${metadataResult.path}`;
+                const contract = new ethers.Contract(nftContractAddress, nftContractABI, signer);
+                const tx = await contract.mint(walletAddress, metadataURI);
+                await tx.wait();
+                alert(`NFT minted! Metadata: ${metadataURI}`);
+            } catch (error) {
+                alert('Minting failed: ' + error.message);
+            }
+        }
 
-            objects.forEach(obj => {
-                const bound = obj.getBoundingRect();
-                minX = Math.min(minX, bound.left);
-                minY = Math.min(minY, bound.top);
-                maxX = Math.max(maxX, bound.left + bound.width);
-                maxY = Math.max(maxY, bound.top + bound.height);
-            });
+        // Get cropped image (exact PFP size with glasses)
+        function getCroppedImage() {
+            const bgWidth = backgroundImg.width * backgroundImg.scaleX;
+            const bgHeight = backgroundImg.height * backgroundImg.scaleY;
+            const bgLeft = backgroundImg.left;
+            const bgTop = backgroundImg.top;
 
-            // Add small padding
-            const padding = 10;
-            minX -= padding;
-            minY -= padding;
-            maxX += padding;
-            maxY += padding;
-
-            // Create a temporary canvas for the cropped image
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = maxX - minX;
-            tempCanvas.height = maxY - minY;
+            tempCanvas.width = bgWidth;
+            tempCanvas.height = bgHeight;
             const tempCtx = tempCanvas.getContext('2d');
 
-            // Render the cropped area
-            canvas.getObjects().forEach(obj => {
-                const bound = obj.getBoundingRect();
-                const imgData = canvas.getContext().getImageData(
-                    bound.left, bound.top, bound.width, bound.height
-                );
-                tempCtx.putImageData(imgData, bound.left - minX, bound.top - minY);
-            });
+            tempCtx.drawImage(
+                backgroundImg.getElement(),
+                0, 0, backgroundImg.width, backgroundImg.height,
+                0, 0, bgWidth, bgHeight
+            );
 
-            // Download the image
-            const dataURL = tempCanvas.toDataURL('image/png');
+            const glassesLeft = (glassesImg.left - bgLeft) / backgroundImg.scaleX;
+            const glassesTop = (glassesImg.top - bgTop) / backgroundImg.scaleY;
+            const glassesWidth = glassesImg.width * glassesImg.scaleX / backgroundImg.scaleX;
+            const glassesHeight = glassesImg.height * glassesImg.scaleY / backgroundImg.scaleY;
+
+            tempCtx.drawImage(
+                glassesImg.getElement(),
+                0, 0, glassesImg.width, glassesImg.height,
+                glassesLeft, glassesTop, glassesWidth, glassesHeight
+            );
+
+            return tempCanvas.toDataURL('image/png');
+        }
+
+        // Download image
+        function downloadImage() {
+            if (!backgroundImg || !glassesImg) {
+                alert('Upload a PFP and add glasses first, fam!');
+                return;
+            }
+            const dataURL = getCroppedImage();
             const link = document.createElement('a');
             link.href = dataURL;
-            link.download = 'edited_image.png';
+            link.download = 'intuition_pfp.png';
             link.click();
         }
+
+        // Initial setup
+        addGlasses();
     </script>
 </body>
 </html>
