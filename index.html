@@ -1,242 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>INTUITION RITE</title>
-  <link href="https://fonts.googleapis.com/css2?family=Unica+One&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Unica One', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(160deg, #0a0a0a, #1a1a1a);
-      color: #ccc;
-      overflow-x: hidden;
-      animation: flickerBG 10s infinite alternate;
-    }
-    @keyframes flickerBG {
-      0% { background-color: #111; }
-      100% { background-color: #1a1a1a; }
-    }
-    h1 {
-      font-size: 48px;
-      margin: 40px 0 20px;
-      text-align: center;
-      color: #ddd;
-      letter-spacing: 2px;
-      text-shadow: 0 0 10px #444;
-      animation: pulseText 4s infinite;
-    }
-    @keyframes pulseText {
-      0% { text-shadow: 0 0 10px #444; }
-      100% { text-shadow: 0 0 20px #666; }
-    }
-    .controls {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-    .controls input[type="file"], .controls button {
-      background: #1f1f1f;
-      color: #ccc;
-      padding: 12px 18px;
-      border: 1px solid #333;
-      border-radius: 12px;
-      cursor: pointer;
-      font-weight: bold;
-      text-transform: uppercase;
-      transition: background 0.3s ease, box-shadow 0.3s ease;
-    }
-    .controls input[type="file"]:hover, .controls button:hover {
-      background: #2a2a2a;
-      box-shadow: 0 0 8px #666;
-    }
-    #canvas-container {
-      display: flex;
-      justify-content: center;
-      margin: 40px auto;
-      max-width: 95%;
-      padding: 20px;
-      background-color: #000; /* Solid background for canvas container */
-    }
-    canvas {
-      background-color: #000; /* Solid canvas background */
-      border-radius: 10px;
-    }
-    footer {
-      text-align: center;
-      padding: 40px 20px;
-      font-size: 14px;
-      color: #555;
-      background-color: #0a0a0a;
-      border-top: 2px solid #1a1a1a;
-      margin-top: 50px;
-    }
-    .marsh-button {
-      display: inline-block;
-      margin-top: 15px;
-      background-color: #151515;
-      color: #aaa;
-      font-weight: bold;
-      padding: 12px 24px;
-      border-radius: 30px;
-      text-decoration: none;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      border: 1px solid #333;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Editor with Glasses</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: Arial, sans-serif;
+        }
+        #canvas-container {
+            border: 1px solid #ccc;
+            margin-top: 10px;
+        }
+        #controls {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-  <h1>THE INTUITION RITE</h1>
-  <div class="controls">
-    <input type="file" id="uploadUserImage" accept="image/*">
-    <button id="downloadButton">Download Ritual Image</button>
-  </div>
-  <div id="canvas-container"></div>
-  <footer>
-    Made by @0xMarshallo
-    <br>
-    <a href="https://x.com/0xMarshallo" target="_blank" class="marsh-button">Follow on X</a>
-  </footer>
-  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
-  <script>
-    // Check if Konva loaded
-    if (typeof Konva === 'undefined') {
-      console.error('Konva.js failed to load.');
-      alert('Failed to load canvas library. Please check your internet connection.');
-    }
+    <div id="controls">
+        <input type="file" id="backgroundInput" accept="image/*" />
+        <input type="file" id="glassesInput" accept="image/*" />
+        <button onclick="downloadImage()">Download Image</button>
+    </div>
+    <div id="canvas-container">
+        <canvas id="canvas" width="500" height="500"></canvas>
+    </div>
 
-    const stage = new Konva.Stage({
-      container: 'canvas-container',
-      width: 800,
-      height: 600,
-    });
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+    <script>
+        // Initialize Fabric.js canvas
+        const canvas = new fabric.Canvas('canvas', {
+            backgroundColor: '#fff',
+            selection: true
+        });
 
-    const layer = new Konva.Layer();
-    stage.add(layer);
+        let backgroundImg, glassesImg;
 
-    let userImageNode = null;
-    let glassesImageNode = null;
-
-    // Load sunglasses
-    const sunglassesImg = new Image();
-    sunglassesImg.src = 'sunglasses.png';
-    sunglassesImg.onload = function () {
-      glassesImageNode = new Konva.Image({
-        image: sunglassesImg,
-        x: 300,
-        y: 200,
-        width: 200,
-        height: 100,
-        draggable: true,
-      });
-      layer.add(glassesImageNode);
-      layer.batchDraw();
-    };
-    sunglassesImg.onerror = function () {
-      console.error('Failed to load sunglasses.png.');
-      alert('Sunglasses image failed to load. Please check the file path.');
-    };
-
-    // Handle user image upload
-    document.getElementById('uploadUserImage').addEventListener('change', function (e) {
-      const file = e.target.files[0];
-      if (!file) {
-        console.error('No file selected.');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function () {
-        const img = new Image();
-        img.src = reader.result;
-
-        img.onload = function () {
-          // Resize image to fit within 300x300
-          let width = img.width;
-          let height = img.height;
-          const maxSize = 300;
-
-          if (width > height) {
-            if (width > maxSize) {
-              height *= maxSize / width;
-              width = maxSize;
+        // Handle background image upload
+        document.getElementById('backgroundInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    fabric.Image.fromURL(event.target.result, function (img) {
+                        // Remove existing background if any
+                        if (backgroundImg) {
+                            canvas.remove(backgroundImg);
+                        }
+                        // Scale image to fit canvas
+                        img.scaleToWidth(canvas.getWidth());
+                        img.scaleToHeight(canvas.getHeight());
+                        img.set({
+                            left: 0,
+                            top: 0,
+                            selectable: true, // Allow selection for resizing
+                            hasControls: false, // No visible controls
+                            hasBorders: false // No visible borders
+                        });
+                        backgroundImg = img;
+                        canvas.add(img);
+                        canvas.sendToBack(img); // Ensure background stays behind glasses
+                        canvas.renderAll();
+                    });
+                };
+                reader.readAsDataURL(file);
             }
-          } else {
-            if (height > maxSize) {
-              width *= maxSize / height;
-              height = maxSize;
+        });
+
+        // Handle glasses image upload
+        document.getElementById('glassesInput').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    fabric.Image.fromURL(event.target.result, function (img) {
+                        // Remove existing glasses if any
+                        if (glassesImg) {
+                            canvas.remove(glassesImg);
+                        }
+                        // Scale glasses to a reasonable size
+                        img.scaleToWidth(canvas.getWidth() / 4);
+                        img.set({
+                            left: canvas.getWidth() / 2,
+                            top: canvas.getHeight() / 2,
+                            selectable: true, // Allow selection
+                            hasControls: true, // Show resize/rotate handles
+                            hasBorders: true, // Show borders
+                            centeredScaling: true,
+                            centeredRotation: true
+                        });
+                        glassesImg = img;
+                        canvas.add(img);
+                        canvas.bringToFront(img); // Ensure glasses are on top
+                        canvas.renderAll();
+                    });
+                };
+                reader.readAsDataURL(file);
             }
-          }
+        });
 
-          if (userImageNode) userImageNode.destroy();
-          userImageNode = new Konva.Image({
-            image: img,
-            x: 100,
-            y: 100,
-            width: width,
-            height: height,
-            draggable: true,
-          });
-          layer.add(userImageNode);
-          userImageNode.moveToBottom();
-          if (glassesImageNode) glassesImageNode.moveToTop();
-          layer.batchDraw();
-        };
+        // Download image with cropped background
+        function downloadImage() {
+            if (!backgroundImg && !glassesImg) {
+                alert('Please upload both a background image and glasses.');
+                return;
+            }
 
-        img.onerror = function () {
-          console.error('Failed to load uploaded image.');
-          alert('Invalid or corrupted image file.');
-        };
-      };
+            // Calculate bounding box of all objects
+            const objects = canvas.getObjects();
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
 
-      reader.onerror = function () {
-        console.error('Failed to read file.');
-        alert('Error reading the file.');
-      };
+            objects.forEach(obj => {
+                const bound = obj.getBoundingRect();
+                minX = Math.min(minX, bound.left);
+                minY = Math.min(minY, bound.top);
+                maxX = Math.max(maxX, bound.left + bound.width);
+                maxY = Math.max(maxY, bound.top + bound.height);
+            });
 
-      reader.readAsDataURL(file);
-    });
+            // Add small padding
+            const padding = 10;
+            minX -= padding;
+            minY -= padding;
+            maxX += padding;
+            maxY += padding;
 
-    // Download image
-    function downloadImage() {
-      // Add temporary white background
-      const bgRect = new Konva.Rect({
-        x: 0,
-        y: 0,
-        width: stage.width(),
-        height: stage.height(),
-        fill: '#ffffff',
-      });
-      layer.add(bgRect);
-      bgRect.moveToBottom();
-      layer.batchDraw();
+            // Create a temporary canvas for the cropped image
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = maxX - minX;
+            tempCanvas.height = maxY - minY;
+            const tempCtx = tempCanvas.getContext('2d');
 
-      // Export stage
-      const dataURL = stage.toDataURL({
-        pixelRatio: 2,
-        mimeType: 'image/png',
-      });
+            // Render the cropped area
+            canvas.getObjects().forEach(obj => {
+                const bound = obj.getBoundingRect();
+                const imgData = canvas.getContext().getImageData(
+                    bound.left, bound.top, bound.width, bound.height
+                );
+                tempCtx.putImageData(imgData, bound.left - minX, bound.top - minY);
+            });
 
-      // Remove temporary background
-      bgRect.destroy();
-      layer.batchDraw();
-
-      // Download
-      const link = document.createElement('a');
-      link.download = 'intuition-glasses-clean.png';
-      link.href = dataURL;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-
-    // Attach download button listener
-    document.getElementById('downloadButton').addEventListener('click', downloadImage);
-  </script>
+            // Download the image
+            const dataURL = tempCanvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = dataURL;
+            link.download = 'edited_image.png';
+            link.click();
+        }
+    </script>
 </body>
 </html>
