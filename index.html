@@ -1,173 +1,174 @@
 <!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Intuition Glasses Editor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Unica+One&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-  <script src="https://unpkg.com/konva@9/konva.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Intuition PFP Maker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
   <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Unica One', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(160deg, #0a0a0a, #1a1a1a);
+      font-family: 'Cinzel Decorative', serif;
+      background-color: #0a0a0a;
+      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><text x="0" y="20" fill="%23ccc" font-size="12" opacity="0.03">𓂀𓊝𓋹𓂀</text></svg>');
+      background-repeat: repeat;
       color: #ccc;
-      overflow-x: hidden;
-    }
-    #preloader { position: fixed; width: 100%; height: 100%; background: #0a0a0a; display: flex; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.6s ease; }
-    .loader { width: 50px; height: 50px; border: 5px solid #00ffc3; border-top: 5px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    h1 {
-      text-align: center;
-      color: #00ffc3;
-      padding: 20px 0;
-      font-size: 2.5rem;
-      text-shadow: 0 0 5px #00ffc3aa;
-      animation: glow 2s infinite alternate;
-    }
-    @keyframes glow {
-      0% { text-shadow: 0 0 5px #00ffc3aa; }
-      100% { text-shadow: 0 0 20px #00ffc3cc, 0 0 10px #00ffc3aa; }
-    }
-    .controls {
+      height: 100vh;
+      overflow: hidden;
       display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding: 10px;
-    }
-    .controls input[type="file"], .controls button {
-      background: #222;
-      color: white;
-      padding: 10px 15px;
-      border: 1px solid #444;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s ease;
-      display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 6px;
-    }
-    .controls button:hover, .controls input[type="file"]:hover {
-      background: #333;
-      transform: translateY(-2px) scale(1.05);
-      box-shadow: 0 0 12px #00ffc399;
-    }
-    #canvas-container {
-      display: flex;
-      justify-content: center;
       padding: 20px;
     }
-    canvas {
-      border: 2px solid #555;
-      background: #111;
-      box-shadow: 0 0 20px #00ffc370;
-      border-radius: 10px;
-      transition: all 0.5s ease;
+    h1 {
+      font-size: 2.5rem;
+      color: white;
+      animation: flicker 2.5s infinite;
     }
-    .toast {
-      position: fixed;
-      bottom: 10px;
-      right: 10px;
-      background: #222;
-      color: #0f0;
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+        opacity: 1;
+      }
+      20%, 22%, 24%, 55% {
+        opacity: 0.4;
+      }
+    }
+    .editor {
+      margin-top: 20px;
+      position: relative;
+      width: 400px;
+      height: 400px;
+      border: 2px dashed #444;
+      background-color: #111;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+    }
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    button {
       padding: 10px 20px;
-      border-radius: 8px;
+      background: #ccc;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 5px;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: white;
+    }
+    input[type="file"] {
       display: none;
     }
-    .background-decor {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      overflow: hidden;
-    }
-    .background-decor span {
-      position: absolute;
-      font-size: 80px;
-      opacity: 0.03;
-      color: #ccc;
-      animation: float 20s linear infinite;
-    }
-    @keyframes float {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-200vh); }
+    label.upload {
+      padding: 10px 20px;
+      background: #ccc;
+      cursor: pointer;
+      font-weight: bold;
+      border-radius: 5px;
     }
   </style>
 </head>
 <body>
-<div id="preloader"><div class="loader"></div></div>
-<div class="background-decor">
-  <span style="left: 10%; top: 80%;">⚙</span>
-  <span style="left: 25%; top: 95%;">∞</span>
-  <span style="left: 50%; top: 110%;">✦</span>
-  <span style="left: 70%; top: 90%;">⟁</span>
-  <span style="left: 85%; top: 100%;">⌘</span>
-</div>
-<h1>Intuition Glasses Editor</h1>
-<div class="controls">
-  <input type="file" id="uploadUserImage" accept="image/*">
-  <input type="file" id="uploadGlassesImage" accept="image/*">
-  <button onclick="downloadImage()">Download</button>
-  <button onclick="resetCanvas()">Reset</button>
-  <button onclick="connectWallet()">Connect Wallet</button>
-  <button onclick="mintNFT()">Mint NFT</button>
-</div>
-<div id="canvas-container"></div>
-<div class="toast" id="toast"></div>
-<script>
-  window.addEventListener('load', () => {
-    document.getElementById('preloader').style.opacity = 0;
-    setTimeout(() => document.getElementById('preloader').style.display = 'none', 600);
-  });const stage = new Konva.Stage({ container: 'canvas-container', width: window.innerWidth * 0.9, height: window.innerHeight * 0.7 }); const layer = new Konva.Layer(); stage.add(layer); let userImageNode = null; let glassesImageNode = null; let userWallet = null;
+  <h1>Intuition PFP Maker</h1>
+  <div class="editor">
+    <canvas id="canvas" width="400" height="400"></canvas>
+  </div>
+  <div class="controls">
+    <label class="upload">Upload PFP <input type="file" id="uploadPFP" accept="image/*"></label>
+    <button onclick="resetCanvas()">Reset</button>
+    <button onclick="downloadImage()">Download</button>
+    <button onclick="alert('🧿 Minting will be enabled in the full ritual.')">Mint NFT</button>
+  </div>  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let pfpImg = null;
+    let glassesImg = new Image();
+    glassesImg.src = 'intuition-glasses.png';
+    let dragging = false;
+    let offsetX, offsetY;
 
-function showToast(message) { const toast = document.getElementById('toast'); toast.textContent = message; toast.style.display = 'block'; setTimeout(() => toast.style.display = 'none', 3000); }
+    let imgX = 0, imgY = 0, imgW = 400, imgH = 400;
+    let glassesX = 100, glassesY = 100, glassesW = 200, glassesH = 100;
 
-function addTransformer(node) { const tr = new Konva.Transformer({ node: node, enabledAnchors: ['top-left', 'top-right', 'bottom-left', 'bottom-right'], rotateEnabled: true, boundBoxFunc: (oldBox, newBox) => { if (newBox.width < 20 || newBox.height < 20) return oldBox; return newBox; } }); layer.add(tr); node.on('click dragstart', () => { tr.nodes([node]); layer.draw(); }); }
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (pfpImg) ctx.drawImage(pfpImg, imgX, imgY, imgW, imgH);
+      ctx.drawImage(glassesImg, glassesX, glassesY, glassesW, glassesH);
+      if (dragging) {
+        ctx.strokeStyle = '#fff';
+        ctx.strokeRect(glassesX, glassesY, glassesW, glassesH);
+      }
+    }
 
-document.getElementById('uploadUserImage').addEventListener('change', (e) => { const file = e.target.files[0]; if (!file || !file.type.startsWith('image/')) return alert('Invalid image file.'); const reader = new FileReader(); reader.onload = () => { const img = new Image(); img.src = reader.result; img.onload = () => { if (userImageNode) userImageNode.destroy(); userImageNode = new Konva.Image({ image: img, x: 100, y: 100, width: img.width > 500 ? 400 : img.width, height: img.height > 500 ? 400 : img.height, draggable: true }); layer.add(userImageNode); addTransformer(userImageNode); layer.moveToBottom(userImageNode); layer.draw(); }; }; reader.readAsDataURL(file); e.target.value = ''; });
+    glassesImg.onload = () => draw();
 
-document.getElementById('uploadGlassesImage').addEventListener('change', (e) => { const file = e.target.files[0]; if (!file || !file.type.startsWith('image/')) return alert('Invalid image file.'); const reader = new FileReader(); reader.onload = () => { const img = new Image(); img.src = reader.result; img.onload = () => { if (glassesImageNode) glassesImageNode.destroy(); glassesImageNode = new Konva.Image({ image: img, x: 200, y: 200, width: 150, height: 80, draggable: true }); layer.add(glassesImageNode); addTransformer(glassesImageNode); layer.draw(); }; }; reader.readAsDataURL(file); e.target.value = ''; });
+    document.getElementById('uploadPFP').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (evt) {
+        pfpImg = new Image();
+        pfpImg.onload = function () {
+          imgW = pfpImg.width;
+          imgH = pfpImg.height;
+          canvas.width = imgW;
+          canvas.height = imgH;
+          draw();
+        }
+        pfpImg.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
 
-function downloadImage() { if (!userImageNode) return alert('Please upload a base image first.'); const imageWidth = userImageNode.width(); const imageHeight = userImageNode.height(); const exportCanvas = document.createElement('canvas'); exportCanvas.width = imageWidth; exportCanvas.height = imageHeight; const ctx = exportCanvas.getContext('2d');
+    canvas.addEventListener('mousedown', (e) => {
+      const x = e.offsetX;
+      const y = e.offsetY;
+      if (x > glassesX && x < glassesX + glassesW && y > glassesY && y < glassesY + glassesH) {
+        dragging = true;
+        offsetX = x - glassesX;
+        offsetY = y - glassesY;
+      }
+    });
 
-const exportStage = new Konva.Stage({ container: document.createElement('div'), width: imageWidth, height: imageHeight });
-const exportLayer = new Konva.Layer();
-exportStage.add(exportLayer);
+    canvas.addEventListener('mousemove', (e) => {
+      if (dragging) {
+        glassesX = e.offsetX - offsetX;
+        glassesY = e.offsetY - offsetY;
+        draw();
+      }
+    });
 
-const userClone = userImageNode.clone({ x: 0, y: 0 });
-exportLayer.add(userClone);
+    canvas.addEventListener('mouseup', () => dragging = false);
+    canvas.addEventListener('mouseleave', () => dragging = false);
 
-if (glassesImageNode) {
-  const offsetX = userImageNode.x();
-  const offsetY = userImageNode.y();
-  const glassesClone = glassesImageNode.clone({ x: glassesImageNode.x() - offsetX, y: glassesImageNode.y() - offsetY });
-  exportLayer.add(glassesClone);
-}
-exportLayer.draw();
+    function resetCanvas() {
+      pfpImg = null;
+      canvas.width = 400;
+      canvas.height = 400;
+      glassesX = 100;
+      glassesY = 100;
+      glassesW = 200;
+      glassesH = 100;
+      draw();
+    }
 
-exportStage.toImage({
-  callback: function(img) {
-    ctx.drawImage(img, 0, 0);
-    const dataURL = exportCanvas.toDataURL("image/png");
-    const link = document.createElement('a');
-    link.download = 'cleaned_pfp.png';
-    link.href = dataURL;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    showToast('Clean image downloaded!');
-  }
-});
-
-}
-
-function resetCanvas() { layer.destroyChildren(); layer.draw(); userImageNode = null; glassesImageNode = null; showToast('Canvas reset.'); }
-
-async function connectWallet() { if (window.ethereum) { try { const provider = new ethers.providers.Web3Provider(window.ethereum); const accounts = await provider.send("eth_requestAccounts", []); userWallet = accounts[0]; showToast(Wallet connected: ${userWallet.slice(0, 6)}...); } catch (err) { alert('Wallet connection failed.'); } } else { alert('MetaMask not found.'); } }
-
-async function mintNFT() { if (!userWallet) return alert('Connect wallet first.'); showToast('Uploading image and minting...'); setTimeout(() => showToast('NFT minted successfully!'), 2000); } </script>
-
-</body>
+    function downloadImage() {
+      draw();
+      const link = document.createElement('a');
+      link.download = 'intuition-pfp.png';
+      link.href = canvas.toDataURL();
+      link.click();
+    }
+  </script></body>
 </html>
