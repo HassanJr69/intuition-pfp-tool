@@ -1,226 +1,42 @@
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Intuition PFP Maker</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=UnifrakturCook:wght@700&display=swap" rel="stylesheet">
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Cinzel Decorative', serif;
-      background-color: #0a0a0a;
-      background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><text x="0" y="20" fill="%23ccc" font-size="12" opacity="0.03">𓂀𓊝𓋹𓂀</text></svg>');
-      background-repeat: repeat;
-      color: #ccc;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 2.5rem;
-      color: white;
-      animation: flicker 2.5s infinite;
-      margin-bottom: 20px;
-    }
-    @keyframes flicker {
-      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-      20%, 22%, 24%, 55% { opacity: 0.4; }
-    }
-    .editor {
-      position: relative;
-      border: 2px dashed #444;
-      box-shadow: 0 0 20px rgba(255,255,255,0.1);
-      background: #111;
-    }
-    #pfpImg, #glasses {
-      position: absolute;
-      top: 0;
-      left: 0;
-      user-select: none;
-    }
-    #glasses-wrapper {
-      position: absolute;
-      top: 100px;
-      left: 100px;
-      width: 200px;
-      height: 100px;
-      transform-origin: center;
-      cursor: move;
-      border: 1px dashed rgba(255,255,255,0.4);
-    }
-    #rotateHandle {
-      position: absolute;
-      bottom: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      cursor: grab;
-    }
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-    button, label.upload {
-      padding: 10px 20px;
-      background: #ccc;
-      border: none;
-      font-weight: bold;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover, label.upload:hover {
-      background: white;
-    }
-    input[type=\"file\"] {
-      display: none;
-    }
-  </style>
+  <!-- <link
+      rel="icon"
+      type="image/svg+xml"
+      href="https://public-cdn.sign.global/Attestation-Frontend/ap-east-migration/sign_240207074153_240723090357.webp"
+    /> -->
+  <meta name="theme-color" content="#000000" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <!-- <title>Sign Protocol</title> -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=ADLaM+Display&family=Akshar:wght@300..700&family=Baloo+Bhai+2:wght@400..800&family=IBM+Plex+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Jockey+One&family=Oxanium:wght@200..800&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/@dotlottie/player-component@2.7.12/dist/dotlottie-player.mjs" type="module"></script>
+  <script type="module" crossorigin src="/assets/index-CdcfIQiY.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-B2V6oXJg.css">
 </head>
+
 <body>
-  <h1>Intuition PFP Maker</h1>
-  <div class="editor" id="editor" style="width: 400px; height: 400px;">
-    <img id="pfpImg" />
-    <div id="glasses-wrapper">
-      <img id="glasses" src="intuition-glasses.png" draggable="false" style="width:100%; height:100%;" />
-      <div id="rotateHandle"></div>
-    </div>
-  </div>
-  <div class="controls">
-    <label class="upload">Upload PFP <input type="file" id="uploadPFP" accept="image/*"></label>
-    <button onclick="resetCanvas()">Reset</button>
-    <button onclick="downloadImage()">Download</button>
-    <button onclick="alert('Minting will be enabled in the full ritual.')">Mint NFT</button>
-  </div>
+  <div id="root"></div>
 
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-JZT6JMXTV3"></script>
   <script>
-    const editor = document.getElementById('editor');
-    const pfpImg = document.getElementById('pfpImg');
-    const glassesWrapper = document.getElementById('glasses-wrapper');
-    const rotateHandle = document.getElementById('rotateHandle');
-
-    let isDragging = false;
-    let dragOffsetX = 0, dragOffsetY = 0;
-    let isRotating = false, initialAngle = 0, startRotation = 0;
-
-    document.getElementById('uploadPFP').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (evt) {
-        pfpImg.src = evt.target.result;
-        pfpImg.onload = () => {
-          editor.style.width = pfpImg.naturalWidth + 'px';
-          editor.style.height = pfpImg.naturalHeight + 'px';
-          pfpImg.style.width = '100%';
-          pfpImg.style.height = '100%';
-        }
-      };
-      reader.readAsDataURL(file);
-    });
-
-    // Drag logic
-    glassesWrapper.addEventListener('mousedown', (e) => {
-      if (e.target === rotateHandle) return;
-      isDragging = true;
-      dragOffsetX = e.offsetX;
-      dragOffsetY = e.offsetY;
-    });
-    document.addEventListener('mousemove', (e) => {
-      if (isDragging) {
-        const rect = editor.getBoundingClientRect();
-        glassesWrapper.style.left = (e.clientX - rect.left - dragOffsetX) + 'px';
-        glassesWrapper.style.top = (e.clientY - rect.top - dragOffsetY) + 'px';
-      }
-    });
-    document.addEventListener('mouseup', () => isDragging = false);
-
-    // Rotate logic
-    rotateHandle.addEventListener('mousedown', (e) => {
-      e.stopPropagation();
-      isRotating = true;
-      const rect = glassesWrapper.getBoundingClientRect();
-      const centerX = rect.left + rect.width / 2;
-      const centerY = rect.top + rect.height / 2;
-      const dx = e.clientX - centerX;
-      const dy = e.clientY - centerY;
-      startRotation = Math.atan2(dy, dx);
-      initialAngle = parseFloat(glassesWrapper.dataset.rotation || 0);
-    });
-    document.addEventListener('mousemove', (e) => {
-      if (isRotating) {
-        const rect = glassesWrapper.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const dx = e.clientX - centerX;
-        const dy = e.clientY - centerY;
-        const angle = Math.atan2(dy, dx);
-        const deg = ((angle - startRotation) * 180 / Math.PI) + initialAngle;
-        glassesWrapper.style.transform = `rotate(${deg}deg)`;
-        glassesWrapper.dataset.rotation = deg;
-      }
-    });
-    document.addEventListener('mouseup', () => isRotating = false);
-
-    // Reset
-    function resetCanvas() {
-      pfpImg.src = '';
-      editor.style.width = '400px';
-      editor.style.height = '400px';
-      glassesWrapper.style.left = '100px';
-      glassesWrapper.style.top = '100px';
-      glassesWrapper.style.width = '200px';
-      glassesWrapper.style.height = '100px';
-      glassesWrapper.style.transform = 'rotate(0deg)';
-      glassesWrapper.dataset.rotation = '0';
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
     }
+    gtag('js', new Date());
 
-    // Download
-    function downloadImage() {
-      const canvas = document.createElement('canvas');
-      const width = editor.clientWidth;
-      const height = editor.clientHeight;
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-
-      // Draw PFP
-      const img = new Image();
-      img.src = pfpImg.src;
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0, width, height);
-
-        // Glasses overlay
-        const g = new Image();
-        g.src = document.getElementById('glasses').src;
-        g.onload = () => {
-          const bounds = glassesWrapper.getBoundingClientRect();
-          const editorBounds = editor.getBoundingClientRect();
-          const relX = bounds.left - editorBounds.left;
-          const relY = bounds.top - editorBounds.top;
-          const angle = parseFloat(glassesWrapper.dataset.rotation || 0);
-
-          ctx.save();
-          ctx.translate(relX + bounds.width / 2, relY + bounds.height / 2);
-          ctx.rotate(angle * Math.PI / 180);
-          ctx.drawImage(g, -bounds.width / 2, -bounds.height / 2, bounds.width, bounds.height);
-          ctx.restore();
-
-          const link = document.createElement('a');
-          link.download = 'intuition-pfp.png';
-          link.href = canvas.toDataURL();
-          link.click();
-        };
-      };
-    }
+    gtag('config', 'G-JZT6JMXTV3');
   </script>
 </body>
+
 </html>
